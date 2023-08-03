@@ -1,0 +1,26 @@
+table {
+  font-size: 0.75rem;
+  border-collapse: collapse;
+  border-radius: 10px;
+  /* border-radius: 15px; */
+}
+
+thead {
+  font-size: 0.8rem;
+  /* background-color: #787265;
+  color: #f6f3e7; */
+  background-color: #787265;
+  color: #f6f3e7;
+  border-radius: 10px;
+}
+
+tr th {
+  /* border-top: 1px solid #787265; */
+  border-bottom: 1px solid #787265;
+}
+
+.table-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

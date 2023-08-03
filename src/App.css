@@ -1,0 +1,22 @@
+.App {
+  text-align: center;
+}
+
+.react-tabs__tab-list {
+  border-bottom: 2px solid #787265;
+}
+
+.react-tabs__tab.react-tabs__tab--selected {
+  background: #787265;
+  color: #f6f3e7;
+  border: none;
+}
+
+.react-tabs__tab:focus::after {
+  content: none;
+  height: 0;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background: none;
+}
