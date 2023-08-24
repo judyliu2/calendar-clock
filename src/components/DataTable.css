@@ -15,8 +15,12 @@ thead {
 }
 
 tr th {
-  /* border-top: 1px solid #787265; */
   border-bottom: 1px solid #787265;
+}
+
+tr:nth-child(even) {
+  background-color: #d7d3c7;
+  color: #5a564c;
 }
 
 .table-container {

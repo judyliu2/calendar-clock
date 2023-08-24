@@ -5,14 +5,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import testData from "./TEST_DATA.json";
 import DataTable from "./components/DataTable";
 import { Tabs, TabList, TabPanel, Tab } from "react-tabs";
+import axios from "axios";
 
 function App() {
-  const [bugs, setBugs] = useState(() => {
-    const localBugs = localStorage.getItem("bugList");
-    return localBugs !== null ? JSON.parse(localBugs) : [];
-  });
-
-  const [region, setRegion] = useState("northern");
+  const [bugs, setBugs] = useState([]);
+  const [fish, setFish] = useState([]);
+  const [seaCreatures, setSeaCreatures] = useState([]);
+  const [region, setRegion] = useState("north");
   const date = new Date();
   const data = useMemo(() => testData, []);
 
@@ -96,79 +95,142 @@ function App() {
     return false;
   }
 
-  const bugColumns = useMemo(
-    () => [
-      {
-        Header: "Name",
-        accessor: `name.name-USen`,
-      },
-      {
-        Header: "Image",
-        Cell: (tableProps) => (
-          <img src={tableProps.row.original.image_uri} width={60} />
-        ),
-      },
-      {
-        Header: "Months Available",
-        accessor: `availability.month-array-northern`,
-        width: 200,
-        Cell: (tableProps) => (
-          <span>
-            {tableProps.row.original["availability"]["month-array-northern"]
-              .map((month) => months[month - 1])
-              .join(" ")}
-          </span>
-        ),
-      },
-      {
-        Header: "Times",
-        accessor: `availability.time`,
-        Cell: (tableProps) => (
-          <div>
-            <span>
-              {tableProps.row.original["availability"]["isAllDay"]
-                ? "All day"
-                : tableProps.row.original["availability"]["time"]}
-            </span>
-          </div>
-        ),
-      },
-      {
-        Header: "Location",
-        accessor: `availability.location`,
-      },
-      {
-        Header: "Rarity",
-        accessor: `availability.rarity`,
-      },
-      {
-        Header: "Price",
-        accessor: `price`,
-      },
-    ],
-    []
-  );
+  const bugColumns = useMemo(() => [
+    {
+      Header: "Name",
+      Cell: (tableProps) => (
+        <div className="creature-picture-format">
+          <span>{tableProps.row.original.name}</span>
+          <img src={tableProps.row.original.image_url} width={60} />
+        </div>
+      ),
+    },
+    {
+      Header: "Months Available",
+      accessor: `availability.month-array-northern`,
+      width: 200,
+      Cell: (tableProps) => (
+        <span>{tableProps.row.original["north"]["months"]}</span>
+      ),
+    },
+    {
+      Header: "Times",
+      accessor: `north.times_by_month.${date.getMonth() + 1}`,
+    },
+    {
+      Header: "Location",
+      accessor: `location`,
+    },
+  ]);
 
-  // function getTime(time) => {
-  //   return
-  // } check for time
+  const fishColumns = useMemo(() => [
+    {
+      Header: "Name",
+      Cell: (tableProps) => (
+        <div className="creature-picture-format">
+          <span>{tableProps.row.original.name}</span>
+          <img src={tableProps.row.original.image_url} width={60} />
+        </div>
+      ),
+    },
+    {
+      Header: "Months Available",
+      accessor: `availability.month-array-northern`,
+      width: 200,
+      Cell: (tableProps) => (
+        <span>{tableProps.row.original["north"]["months"]}</span>
+      ),
+    },
+    {
+      Header: "Times",
+      accessor: `north.times_by_month.${date.getMonth() + 1}`,
+    },
+    {
+      Header: "Location",
+      accessor: `location`,
+    },
+    {
+      Header: "Shadow Size",
+      accessor: `shadow_size`,
+    },
+  ]);
+
+  const seaCreatureColumns = useMemo(() => [
+    {
+      Header: "Name",
+      Cell: (tableProps) => (
+        <div className="creature-picture-format">
+          <span>{tableProps.row.original.name}</span>
+          <img src={tableProps.row.original.image_url} width={60} />
+        </div>
+      ),
+    },
+    {
+      Header: "Months Available",
+      accessor: `availability.month-array-northern`,
+      width: 200,
+      Cell: (tableProps) => (
+        <span>{tableProps.row.original["north"]["months"]}</span>
+      ),
+    },
+    {
+      Header: "Times",
+      accessor: `north.times_by_month.${date.getMonth() + 1}`,
+    },
+    {
+      Header: "Shadow Size",
+      accessor: "shadow_size",
+    },
+    {
+      Header: "Speed",
+      accessor: "shadow_movement",
+    },
+  ]);
 
   const fetchBugData = () => {
-    fetch("https://acnhapi.com/v1/bugs/")
+    const options = {
+      method: "GET",
+      url: "http://localhost:8000/monthly-bugs",
+      params: { month: date.getMonth() + 1 },
+    };
+    axios
+      .request(options)
       .then((response) => {
-        return response.json();
+        setBugs(response.data.north);
       })
-      .then((data) => {
-        const bugList = Object.values(data);
-        localStorage.setItem("recipeList", JSON.stringify(bugList));
-        bugList = bugList
-          .filter((bug) =>
-            bug["availability"]["month-array-northern"].includes(
-              date.getMonth() + 1
-            )
-          )
-          .filter((bug) => isAvailable(bug["availability"]["time"]));
-        setBugs(bugList);
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const fetchFishData = () => {
+    const options = {
+      method: "GET",
+      url: "http://localhost:8000/monthly-fish",
+      params: { month: date.getMonth() + 1 },
+    };
+
+    axios
+      .request(options)
+      .then((response) => {
+        setFish(response.data.north);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const fetchSeaCreatureData = () => {
+    const options = {
+      method: "GET",
+      url: "http://localhost:8000/monthly-sea-creatures",
+      params: { month: date.getMonth() + 1 },
+    };
+
+    axios
+      .request(options)
+      .then((response) => {
+        setSeaCreatures(response.data.north);
       })
       .catch((error) => {
         console.log(error);
@@ -176,9 +238,11 @@ function App() {
   };
 
   useEffect(() => {
-    if (bugs === []) {
-      fetchBugData();
-    }
+    // if (bugs === []) {
+    fetchBugData();
+    fetchFishData();
+    fetchSeaCreatureData();
+    // }
   }, []);
 
   return (
@@ -191,7 +255,6 @@ function App() {
             <Tab>Fish</Tab>
             <Tab>Sea Creatures</Tab>
           </TabList>
-
           <TabPanel>
             {bugs.length > 0 ? (
               <DataTable columns={bugColumns} data={bugs} />
@@ -200,15 +263,24 @@ function App() {
             )}
           </TabPanel>
           <TabPanel>
-            <h2>Fish</h2>
+            {fish.length > 0 ? (
+              <DataTable columns={fishColumns} data={fish} />
+            ) : (
+              <span>No fish data found.</span>
+            )}
           </TabPanel>
           <TabPanel>
-            <h2>Sea Creatures</h2>
+            {seaCreatures.length > 0 ? (
+              <DataTable columns={seaCreatureColumns} data={seaCreatures} />
+            ) : (
+              <span>No sea creature data found.</span>
+            )}
           </TabPanel>
         </Tabs>
       </div>
       <div>
-        Data is retrieved from <a href="https://acnhapi.com/">ANCH API</a>
+        Data is retrieved from{" "}
+        <a href="https://api.nookipedia.com/">Nookipedia API</a>
       </div>
     </div>
   );
